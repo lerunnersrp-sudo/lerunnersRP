@@ -6,7 +6,7 @@
     <title>Dashboard - Plataforma LeRunners</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        .view { display: none; } /* Começa oculto por defeito */
+        .view { display: none; } /* Todas as vistas começam ocultas */
         .athlete-card {
             background-color: white; border-radius: 12px; padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -33,10 +33,10 @@
     </header>
 
     <main class="dashboard-main" style="grid-template-columns: 1fr; max-width: 1400px;">
-        <!-- Visão do Professor: Contém o Hub e o Painel Individual -->
+        <!-- Container Geral da Visão do Professor -->
         <div id="professor-view" class="view">
-            <!-- VISTA 1: Hub de Atletas -->
-            <div id="hub-view">
+            <!-- VISTA 1: Hub de Atletas (Visão Macro) -->
+            <div id="hub-sub-view">
                 <div class="section-header" style="align-items: flex-start;">
                     <div>
                         <h2 class="text-3xl font-bold">Hub de Atletas</h2>
@@ -57,8 +57,8 @@
                 </div>
                 <div id="athlete-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </div>
-            <!-- VISTA 2: Painel de Gestão Individual (começa oculto) -->
-            <div id="management-view" style="display: none;">
+            <!-- VISTA 2: Painel de Gestão Individual (Visão Micro, começa oculta) -->
+            <div id="management-sub-view" style="display: none;">
                 <div class="section-header">
                     <button id="back-to-hub-btn" class="form-button" style="background: #6b7280; width: auto; padding: 0.5rem 1rem;">&larr; Voltar ao Hub</button>
                     <h2 id="management-athlete-name" class="text-3xl font-bold"></h2>
@@ -101,7 +101,7 @@
                 </div>
             </div>
         </div>
-        <!-- Visão do Atleta -->
+        <!-- Container Geral da Visão do Atleta -->
         <div id="atleta-view" class="view">
              <div class="section-header">
                 <h2 class="text-3xl font-bold">Meu Painel</h2>

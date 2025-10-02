@@ -3,205 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | LeRunners RP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dashboard - Plataforma LeRunners</title>
+    <!-- Usando o seu CSS original -->
+    <link rel="stylesheet" href="css/styles.css">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        /* Estilos adicionais para controle de visibilidade */
+        .view-container { display: none; }
+        
+        /* Estilo simples para o item do atleta na lista */
+        .atleta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
         }
-        .view { display: none; }
-        .view.active { display: block; }
+        .atleta-item p {
+            font-weight: 500;
+        }
+        .atleta-item button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="dashboard-page">
     <!-- Header -->
-    <header class="bg-white shadow-md">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">LeRunners RP</h1>
-            <div>
-                <span id="userName" class="text-gray-700 mr-4"></span>
-                <button id="logoutButton" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Sair</button>
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="header-left">
+                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo">
+                    <path d="M13.633 3.13306C12.7831 1.70772 11.2169 1.70772 10.367 3.13306L3.13296 15.3671C2.28306 16.7924 3.06617 18.75 4.7659 18.75H19.2341C20.9338 18.75 21.7169 16.7924 20.867 15.3671L13.633 3.13306Z" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>LeRunners</h1>
             </div>
-        </nav>
+            <div class="header-right">
+                <span id="user-name">Carregando...</span>
+                <button id="logout-btn" class="logout-btn">Sair</button>
+            </div>
+        </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8">
-        <!-- Tela de Carregamento -->
-        <div id="loader" class="text-center p-10">
-            <p class="text-lg text-gray-600">Carregando dados...</p>
+    <main class="dashboard-main">
+        <!-- Visão do Professor -->
+        <div id="professor-view" class="view-container content-area">
+            <div class="section-header">
+                <h2>Painel do Professor</h2>
+                <p>Gestão de Atletas</p>
+            </div>
+            <div id="lista-atletas-container">
+                <!-- A lista de atletas será carregada aqui pelo dashboard.js -->
+            </div>
         </div>
 
         <!-- Visão do Atleta -->
-        <div id="atletaView" class="view">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Painel do Atleta</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- ... (conteúdo do painel do atleta inalterado) ... -->
+        <div id="atleta-view" class="view-container content-area">
+            <div class="section-header">
+                <h2>Painel do Atleta</h2>
+                <p>Seus treinos e progresso</p>
             </div>
-        </div>
-
-        <!-- Visão do Professor (Gestão) -->
-        <div id="professorView" class="view">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Painel de Gestão</h2>
-            
-            <!-- Container da Lista de Atletas -->
-            <div id="listaAtletasWrapper" class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-xl mb-4 border-b pb-3">Meus Atletas</h3>
-                <div id="listaAtletasContainer" class="space-y-3">
-                    <!-- Conteúdo dinâmico -->
-                </div>
-            </div>
-
-            <!-- Container de Detalhes do Atleta (inicialmente oculto) -->
-            <div id="atletaDetalhesWrapper" class="hidden bg-white p-6 rounded-xl shadow-lg">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h3 id="detalheAtletaNome" class="font-bold text-xl"></h3>
-                    <button id="voltarParaLista" class="text-sm text-blue-600 hover:underline">&larr; Voltar para a lista</button>
-                </div>
-                <div class="space-y-4">
-                    <!-- Aqui entrarão os detalhes do atleta: treinos, metas, etc. -->
-                    <p class="text-gray-600">Área de detalhes do atleta. Próxima etapa: carregar e exibir os dados de performance.</p>
-                </div>
-            </div>
+            <!-- Conteúdo do atleta virá aqui -->
+            <p>Bem-vindo, atleta! Sua área de treinos e metas aparecerá aqui.</p>
         </div>
     </main>
 
-    <!-- Firebase SDK v9+ com valores reais -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDGLozMAqDoQdP_znYi3mbebUomE-_O6hU",
-            authDomain: "lerunners.firebaseapp.com",
-            databaseURL: "https://lerunners-default-rtdb.firebaseio.com",
-            projectId: "lerunners",
-            storageBucket: "lerunners.appspot.com",
-            messagingSenderId: "786096020973",
-            appId: "1:786096020973:web:334dc555218cedb0e1dbe4"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-
-        // ... (declarações de variáveis do DOM) ...
-        const listaAtletasWrapper = document.getElementById('listaAtletasWrapper');
-        const atletaDetalhesWrapper = document.getElementById('atletaDetalhesWrapper');
-        const detalheAtletaNome = document.getElementById('detalheAtletaNome');
-        const voltarParaLista = document.getElementById('voltarParaLista');
-        const listaAtletasContainer = document.getElementById('listaAtletasContainer');
-        const loader = document.getElementById('loader');
-        const atletaView = document.getElementById('atletaView');
-        const professorView = document.getElementById('professorView');
-        const userNameSpan = document.getElementById('userName');
-        const logoutButton = document.getElementById('logoutButton');
-
-        const redirectToLogin = () => {
-            const currentPath = window.location.href;
-            const newPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) + 'login.html';
-            window.location.href = newPath;
-        };
-
-        logoutButton.addEventListener('click', () => {
-            signOut(auth).catch((error) => console.error("Erro ao fazer logout:", error));
-        });
-
-        const mostrarDetalhesAtleta = async (atletaId) => {
-            const atletaRef = ref(database, 'users/' + atletaId);
-            try {
-                const snapshot = await get(atletaRef);
-                if (snapshot.exists()) {
-                    const atletaData = snapshot.val();
-                    detalheAtletaNome.textContent = `Detalhes de: ${atletaData.nome}`;
-                    
-                    // Lógica para alternar as telas
-                    listaAtletasWrapper.classList.add('hidden');
-                    atletaDetalhesWrapper.classList.remove('hidden');
-                } else {
-                    console.error("Atleta não encontrado.");
-                }
-            } catch (error) {
-                console.error("Erro ao buscar detalhes do atleta:", error);
-            }
-        };
-        
-        voltarParaLista.addEventListener('click', () => {
-            atletaDetalhesWrapper.classList.add('hidden');
-            listaAtletasWrapper.classList.remove('hidden');
-        });
-
-        const carregarAtletas = async () => {
-            const usersRef = ref(database, 'users');
-            const atletasQuery = query(usersRef, orderByChild('tipo'), equalTo('atleta'));
-
-            try {
-                const snapshot = await get(atletasQuery);
-                listaAtletasContainer.innerHTML = ''; 
-
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const atleta = childSnapshot.val();
-                        const atletaId = childSnapshot.key; // UID do atleta
-                        const atletaElement = document.createElement('div');
-                        atletaElement.className = 'p-3 bg-gray-50 rounded-lg flex justify-between items-center';
-                        
-                        const nomeSpan = document.createElement('span');
-                        nomeSpan.className = 'text-gray-800 font-medium';
-                        nomeSpan.textContent = atleta.nome;
-
-                        const detalhesButton = document.createElement('button');
-                        detalhesButton.className = 'text-sm text-blue-600 hover:underline';
-                        detalhesButton.textContent = 'Ver Detalhes';
-                        detalhesButton.onclick = () => mostrarDetalhesAtleta(atletaId);
-
-                        atletaElement.appendChild(nomeSpan);
-                        atletaElement.appendChild(detalhesButton);
-                        listaAtletasContainer.appendChild(atletaElement);
-                    });
-                } else {
-                    listaAtletasContainer.innerHTML = '<p class="text-gray-500">Nenhum atleta encontrado.</p>';
-                }
-            } catch (error) {
-                console.error("Erro ao carregar atletas:", error);
-                listaAtletasContainer.innerHTML = '<p class="text-red-500">Não foi possível carregar a lista de atletas.</p>';
-            }
-        };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userRef = ref(database, 'users/' + user.uid);
-                
-                try {
-                    const snapshot = await get(userRef);
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        userNameSpan.textContent = `Olá, ${userData.nome}!`;
-                        
-                        if (userData.tipo === 'atleta') {
-                            atletaView.classList.add('active');
-                        } else if (userData.tipo === 'professor') {
-                            professorView.classList.add('active');
-                            await carregarAtletas();
-                        } else {
-                            atletaView.classList.add('active'); 
-                        }
-
-                    } else {
-                        console.error("Dados do usuário não encontrados no banco de dados para o UID:", user.uid);
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar dados do usuário:", error);
-                } finally {
-                    loader.style.display = 'none';
-                }
-
-            } else {
-                redirectToLogin();
-            }
-        });
-    </script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Scripts da aplicação -->
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script> <!-- Agora usando o script corrigido -->
 </body>
 </html>

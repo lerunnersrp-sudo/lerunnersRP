@@ -1,33 +1,38 @@
-// Script de Login para a Plataforma LeRunners
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Lista de usuários pré-definida.
-    // No futuro, podemos carregar isso do Firebase se necessário.
-    const USERS = [
-        { name: 'Professor Carlos', role: 'professor', password: '123' },
-        { name: 'Atleta Teste', role: 'atleta', password: '123' },
-        { name: 'Ana Corredora', role: 'atleta', password: 'senha123' }
-    ];
+    // Lista de usuários será carregada aqui do Firebase
+    let USERS = [];
 
     const userSelect = document.getElementById('user-select');
     const passwordInput = document.getElementById('password-input');
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
 
-    // Função para verificar se já existe uma sessão de usuário
-    function checkSession() {
+    // Função principal que inicia o processo
+    async function initializeLogin() {
         const currentUserSession = localStorage.getItem('currentUserSession');
         if (currentUserSession) {
-            // Se encontrou uma sessão, vai direto para o dashboard
-            console.log('Sessão encontrada. Redirecionando para o dashboard...');
             window.location.href = 'dashboard.html';
-        } else {
-            // Se não, popula a lista de usuários para login
-            populateUserSelect();
+            return;
+        }
+
+        try {
+            const snapshot = await database.ref('logins').once('value');
+            if (snapshot.exists()) {
+                USERS = Object.values(snapshot.val());
+                populateUserSelect();
+            } else {
+                loginError.textContent = 'Nenhum usuário configurado no sistema.';
+                loginError.style.display = 'block';
+            }
+        } catch (error) {
+            console.error("Erro ao carregar lista de usuários:", error);
+            loginError.textContent = 'Falha ao conectar com o banco de dados.';
+            loginError.style.display = 'block';
         }
     }
 
-    // Preenche o campo <select> com os usuários da lista
+    // Preenche o campo <select> com os usuários carregados do Firebase
     function populateUserSelect() {
         if (!userSelect) return;
         userSelect.innerHTML = '<option value="">Selecione seu usuário...</option>';
@@ -65,16 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             localStorage.setItem('currentUserSession', JSON.stringify(sessionData));
             
-            // Redireciona para o dashboard
             window.location.href = 'dashboard.html';
         } else {
-            // Senha incorreta
             loginError.textContent = 'Senha incorreta. Tente novamente.';
             loginError.style.display = 'block';
             passwordInput.value = '';
         }
     });
 
-    // Inicia o processo ao carregar a página
-    checkSession();
+    initializeLogin();
 });

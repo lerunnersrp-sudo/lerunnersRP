@@ -21,7 +21,7 @@ if (!firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
 }
 
-// Referência global apenas para o Realtime Database
+// Referência global APENAS para o Realtime Database
 const database = firebase.database();
 
 console.log('Firebase v8 SDK (apenas Database) e Cloudinary configurados.');

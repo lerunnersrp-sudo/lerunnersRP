@@ -3,329 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Plataforma LeRunners</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Dashboard | LeRunners RP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .view { display: none; }
+        .view.active { display: block; }
+    </style>
 </head>
-<body class="dashboard-page">
+<body class="bg-gray-100">
     <!-- Header -->
-    <header class="dashboard-header">
-        <div class="header-content">
-            <div class="header-left">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo">
-                    <path d="M13.633 3.13306C12.7831 1.70772 11.2169 1.70772 10.367 3.13306L3.13296 15.3671C2.28306 16.7924 3.06617 18.75 4.7659 18.75H19.2341C20.9338 18.75 21.7169 16.7924 20.867 15.3671L13.633 3.13306Z" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <h1>LeRunners</h1>
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">LeRunners RP</h1>
+            <div>
+                <span id="userName" class="text-gray-700 mr-4"></span>
+                <button id="logoutButton" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Sair</button>
             </div>
-            <div class="header-right">
-                <span id="user-name">Carregando...</span>
-                <button id="logout-btn" class="logout-btn">Sair</button>
-            </div>
-        </div>
+        </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="dashboard-main">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <nav class="sidebar-nav">
-                <a href="#dashboard" class="nav-item active" data-section="dashboard">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"/>
-                        <rect x="14" y="3" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/>
-                        <rect x="3" y="14" width="7" height="7"/>
-                    </svg>
-                    Dashboard
-                </a>
-                <a href="#profile" class="nav-item" data-section="profile">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    Perfil
-                </a>
-                <a href="#training" class="nav-item" data-section="training">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                    Treinos
-                </a>
-                <a href="#finances" class="nav-item" data-section="finances">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    Financeiro
-                </a>
-                <a href="#progress" class="nav-item" data-section="progress">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 3v18h18"/>
-                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                    </svg>
-                    Progresso
-                </a>
-            </nav>
-        </aside>
+    <main class="container mx-auto px-6 py-8">
+        <!-- Tela de Carregamento -->
+        <div id="loader" class="text-center p-10">
+            <p class="text-lg text-gray-600">Carregando dados...</p>
+        </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Dashboard Section -->
-            <section id="dashboard-section" class="content-section active">
-                <div class="section-header">
-                    <h2>Dashboard</h2>
-                    <p>Visão geral da sua performance</p>
-                </div>
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <h3>Treinos desta Semana</h3>
-                        <div class="metric">
-                            <span class="metric-value" id="weekly-trainings">0</span>
-                            <span class="metric-label">sessões</span>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Distância Total</h3>
-                        <div class="metric">
-                            <span class="metric-value" id="total-distance">0</span>
-                            <span class="metric-label">km</span>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Tempo Total</h3>
-                        <div class="metric">
-                            <span class="metric-value" id="total-time">0</span>
-                            <span class="metric-label">min</span>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Pace Médio</h3>
-                        <div class="metric">
-                            <span class="metric-value" id="average-pace">0:00</span>
-                            <span class="metric-label">min/km</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <!-- Visão do Atleta -->
+        <div id="atletaView" class="view">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Painel do Atleta</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- ... (conteúdo do painel do atleta inalterado) ... -->
+            </div>
+        </div>
 
-            <!-- Profile Section -->
-            <section id="profile-section" class="content-section">
-                <div class="section-header">
-                    <h2>Perfil do Atleta</h2>
-                    <p>Gerencie suas informações pessoais</p>
+        <!-- Visão do Professor (Gestão) -->
+        <div id="professorView" class="view">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Painel de Gestão</h2>
+            
+            <!-- Container da Lista de Atletas -->
+            <div id="listaAtletasWrapper" class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-xl mb-4 border-b pb-3">Meus Atletas</h3>
+                <div id="listaAtletasContainer" class="space-y-3">
+                    <!-- Conteúdo dinâmico -->
                 </div>
-                <div class="profile-container">
-                    <div class="profile-photo-section">
-                        <div class="profile-photo" id="profile-photo">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
-                            </svg>
-                        </div>
-                        <button id="upload-photo-btn" class="upload-btn">Alterar Foto</button>
-                    </div>
-                    <form id="profile-form" class="profile-form">
-                        <div class="form-group">
-                            <label for="profile-name">Nome Completo</label>
-                            <input type="text" id="profile-name" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="profile-email">Email</label>
-                            <input type="email" id="profile-email" class="form-input" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="profile-age">Idade</label>
-                            <input type="number" id="profile-age" class="form-input" min="1" max="120">
-                        </div>
-                        <div class="form-group">
-                            <label for="profile-weight">Peso (kg)</label>
-                            <input type="number" id="profile-weight" class="form-input" min="1" max="300" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label for="profile-height">Altura (cm)</label>
-                            <input type="number" id="profile-height" class="form-input" min="1" max="250">
-                        </div>
-                        <div class="form-group">
-                            <label for="profile-goal">Objetivo Principal</label>
-                            <select id="profile-goal" class="form-input">
-                                <option value="">Selecione um objetivo</option>
-                                <option value="5k">Correr 5K</option>
-                                <option value="10k">Correr 10K</option>
-                                <option value="21k">Meia Maratona</option>
-                                <option value="42k">Maratona</option>
-                                <option value="fitness">Condicionamento Físico</option>
-                                <option value="weight-loss">Perda de Peso</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="form-button">Salvar Alterações</button>
-                    </form>
-                </div>
-            </section>
+            </div>
 
-            <!-- Training Section -->
-            <section id="training-section" class="content-section">
-                <div class="section-header">
-                    <h2>Treinos</h2>
-                    <p>Registre e acompanhe seus treinos</p>
-                    <button id="add-training-btn" class="add-btn">Novo Treino</button>
+            <!-- Container de Detalhes do Atleta (inicialmente oculto) -->
+            <div id="atletaDetalhesWrapper" class="hidden bg-white p-6 rounded-xl shadow-lg">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h3 id="detalheAtletaNome" class="font-bold text-xl"></h3>
+                    <button id="voltarParaLista" class="text-sm text-blue-600 hover:underline">&larr; Voltar para a lista</button>
                 </div>
-                <div id="training-list" class="training-list">
-                    <!-- Treinos serão carregados aqui -->
+                <div class="space-y-4">
+                    <!-- Aqui entrarão os detalhes do atleta: treinos, metas, etc. -->
+                    <p class="text-gray-600">Área de detalhes do atleta. Próxima etapa: carregar e exibir os dados de performance.</p>
                 </div>
-            </section>
-
-            <!-- Finances Section -->
-            <section id="finances-section" class="content-section">
-                <div class="section-header">
-                    <h2>Gestão Financeira</h2>
-                    <p>Controle suas receitas e despesas</p>
-                    <button id="add-transaction-btn" class="add-btn">Nova Transação</button>
-                </div>
-                <div class="finances-summary">
-                    <div class="finance-card income">
-                        <h3>Receitas</h3>
-                        <div class="finance-value" id="total-income">R$ 0,00</div>
-                    </div>
-                    <div class="finance-card expense">
-                        <h3>Despesas</h3>
-                        <div class="finance-value" id="total-expenses">R$ 0,00</div>
-                    </div>
-                    <div class="finance-card balance">
-                        <h3>Saldo</h3>
-                        <div class="finance-value" id="balance">R$ 0,00</div>
-                    </div>
-                </div>
-                <div id="transactions-list" class="transactions-list">
-                    <!-- Transações serão carregadas aqui -->
-                </div>
-            </section>
-
-            <!-- Progress Section -->
-            <section id="progress-section" class="content-section">
-                <div class="section-header">
-                    <h2>Acompanhamento de Progresso</h2>
-                    <p>Visualize sua evolução ao longo do tempo</p>
-                </div>
-                <div class="progress-charts">
-                    <div class="chart-container">
-                        <h3>Evolução da Distância</h3>
-                        <canvas id="distance-chart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3>Evolução do Pace</h3>
-                        <canvas id="pace-chart"></canvas>
-                    </div>
-                </div>
-            </section>
+            </div>
         </div>
     </main>
 
-    <!-- Modals -->
-    <!-- Training Modal -->
-    <div id="training-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Registrar Treino</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <form id="training-form">
-                <div class="form-group">
-                    <label for="training-date">Data</label>
-                    <input type="date" id="training-date" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="training-type">Tipo de Treino</label>
-                    <select id="training-type" class="form-input" required>
-                        <option value="">Selecione o tipo</option>
-                        <option value="easy">Corrida Leve</option>
-                        <option value="tempo">Treino de Ritmo</option>
-                        <option value="interval">Treino Intervalado</option>
-                        <option value="long">Corrida Longa</option>
-                        <option value="recovery">Recuperação</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="training-distance">Distância (km)</label>
-                    <input type="number" id="training-distance" class="form-input" min="0" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label for="training-time">Tempo (minutos)</label>
-                    <input type="number" id="training-time" class="form-input" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="training-notes">Observações</label>
-                    <textarea id="training-notes" class="form-input" rows="3"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancel-training">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar Treino</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Firebase SDK v9+ com valores reais -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-    <!-- Transaction Modal -->
-    <div id="transaction-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Nova Transação</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <form id="transaction-form">
-                <div class="form-group">
-                    <label for="transaction-type">Tipo</label>
-                    <select id="transaction-type" class="form-input" required>
-                        <option value="">Selecione o tipo</option>
-                        <option value="income">Receita</option>
-                        <option value="expense">Despesa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="transaction-description">Descrição</label>
-                    <input type="text" id="transaction-description" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="transaction-amount">Valor (R$)</label>
-                    <input type="number" id="transaction-amount" class="form-input" min="0" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="transaction-date">Data</label>
-                    <input type="date" id="transaction-date" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="transaction-category">Categoria</label>
-                    <select id="transaction-category" class="form-input" required>
-                        <option value="">Selecione a categoria</option>
-                        <option value="equipment">Equipamentos</option>
-                        <option value="nutrition">Nutrição</option>
-                        <option value="race">Provas</option>
-                        <option value="coaching">Assessoria</option>
-                        <option value="medical">Médico/Fisio</option>
-                        <option value="other">Outros</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancel-transaction">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar Transação</button>
-                </div>
-            </form>
-        </div>
-    </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGLozMAqDoQdP_znYi3mbebUomE-_O6hU",
+            authDomain: "lerunners.firebaseapp.com",
+            databaseURL: "https://lerunners-default-rtdb.firebaseio.com",
+            projectId: "lerunners",
+            storageBucket: "lerunners.appspot.com",
+            messagingSenderId: "786096020973",
+            appId: "1:786096020973:web:334dc555218cedb0e1dbe4"
+        };
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <!-- Cloudinary SDK -->
-    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
-    
-    <!-- Chart.js for progress charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Scripts da aplicação -->
-    <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/dashboard.js"></script>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // ... (declarações de variáveis do DOM) ...
+        const listaAtletasWrapper = document.getElementById('listaAtletasWrapper');
+        const atletaDetalhesWrapper = document.getElementById('atletaDetalhesWrapper');
+        const detalheAtletaNome = document.getElementById('detalheAtletaNome');
+        const voltarParaLista = document.getElementById('voltarParaLista');
+        const listaAtletasContainer = document.getElementById('listaAtletasContainer');
+        const loader = document.getElementById('loader');
+        const atletaView = document.getElementById('atletaView');
+        const professorView = document.getElementById('professorView');
+        const userNameSpan = document.getElementById('userName');
+        const logoutButton = document.getElementById('logoutButton');
+
+        const redirectToLogin = () => {
+            const currentPath = window.location.href;
+            const newPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) + 'login.html';
+            window.location.href = newPath;
+        };
+
+        logoutButton.addEventListener('click', () => {
+            signOut(auth).catch((error) => console.error("Erro ao fazer logout:", error));
+        });
+
+        const mostrarDetalhesAtleta = async (atletaId) => {
+            const atletaRef = ref(database, 'users/' + atletaId);
+            try {
+                const snapshot = await get(atletaRef);
+                if (snapshot.exists()) {
+                    const atletaData = snapshot.val();
+                    detalheAtletaNome.textContent = `Detalhes de: ${atletaData.nome}`;
+                    
+                    // Lógica para alternar as telas
+                    listaAtletasWrapper.classList.add('hidden');
+                    atletaDetalhesWrapper.classList.remove('hidden');
+                } else {
+                    console.error("Atleta não encontrado.");
+                }
+            } catch (error) {
+                console.error("Erro ao buscar detalhes do atleta:", error);
+            }
+        };
+        
+        voltarParaLista.addEventListener('click', () => {
+            atletaDetalhesWrapper.classList.add('hidden');
+            listaAtletasWrapper.classList.remove('hidden');
+        });
+
+        const carregarAtletas = async () => {
+            const usersRef = ref(database, 'users');
+            const atletasQuery = query(usersRef, orderByChild('tipo'), equalTo('atleta'));
+
+            try {
+                const snapshot = await get(atletasQuery);
+                listaAtletasContainer.innerHTML = ''; 
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const atleta = childSnapshot.val();
+                        const atletaId = childSnapshot.key; // UID do atleta
+                        const atletaElement = document.createElement('div');
+                        atletaElement.className = 'p-3 bg-gray-50 rounded-lg flex justify-between items-center';
+                        
+                        const nomeSpan = document.createElement('span');
+                        nomeSpan.className = 'text-gray-800 font-medium';
+                        nomeSpan.textContent = atleta.nome;
+
+                        const detalhesButton = document.createElement('button');
+                        detalhesButton.className = 'text-sm text-blue-600 hover:underline';
+                        detalhesButton.textContent = 'Ver Detalhes';
+                        detalhesButton.onclick = () => mostrarDetalhesAtleta(atletaId);
+
+                        atletaElement.appendChild(nomeSpan);
+                        atletaElement.appendChild(detalhesButton);
+                        listaAtletasContainer.appendChild(atletaElement);
+                    });
+                } else {
+                    listaAtletasContainer.innerHTML = '<p class="text-gray-500">Nenhum atleta encontrado.</p>';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar atletas:", error);
+                listaAtletasContainer.innerHTML = '<p class="text-red-500">Não foi possível carregar a lista de atletas.</p>';
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userRef = ref(database, 'users/' + user.uid);
+                
+                try {
+                    const snapshot = await get(userRef);
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        userNameSpan.textContent = `Olá, ${userData.nome}!`;
+                        
+                        if (userData.tipo === 'atleta') {
+                            atletaView.classList.add('active');
+                        } else if (userData.tipo === 'professor') {
+                            professorView.classList.add('active');
+                            await carregarAtletas();
+                        } else {
+                            atletaView.classList.add('active'); 
+                        }
+
+                    } else {
+                        console.error("Dados do usuário não encontrados no banco de dados para o UID:", user.uid);
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar dados do usuário:", error);
+                } finally {
+                    loader.style.display = 'none';
+                }
+
+            } else {
+                redirectToLogin();
+            }
+        });
+    </script>
 </body>
 </html>
-

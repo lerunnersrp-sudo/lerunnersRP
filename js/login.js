@@ -1,7 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Lista de usuários será carregada aqui do Firebase
-    let USERS = [];
+    // Lista de usuários. O professor está aqui para garantir o primeiro acesso.
+    // Os outros usuários (alunos) serão carregados do Firebase.
+    const STATIC_USERS = [
+        { name: 'Leandro Alves', role: 'professor', password: '194001' }
+    ];
+    let ALL_USERS = [...STATIC_USERS]; // Começa com o usuário estático
 
     const userSelect = document.getElementById('user-select');
     const passwordInput = document.getElementById('password-input');
@@ -10,33 +14,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função principal que inicia o processo
     async function initializeLogin() {
+        // 1. Verifica se já existe uma sessão. Se sim, redireciona.
         const currentUserSession = localStorage.getItem('currentUserSession');
         if (currentUserSession) {
             window.location.href = 'dashboard.html';
             return;
         }
 
+        // 2. Tenta carregar usuários adicionais (alunos) do Firebase.
         try {
             const snapshot = await database.ref('logins').once('value');
             if (snapshot.exists()) {
-                USERS = Object.values(snapshot.val());
-                populateUserSelect();
-            } else {
-                loginError.textContent = 'Nenhum usuário configurado no sistema.';
-                loginError.style.display = 'block';
+                const firebaseUsers = Object.values(snapshot.val());
+                // Adiciona os usuários do Firebase à lista, evitando duplicatas
+                firebaseUsers.forEach(fbUser => {
+                    if (!ALL_USERS.some(u => u.name === fbUser.name)) {
+                        ALL_USERS.push(fbUser);
+                    }
+                });
             }
         } catch (error) {
-            console.error("Erro ao carregar lista de usuários:", error);
-            loginError.textContent = 'Falha ao conectar com o banco de dados.';
-            loginError.style.display = 'block';
+            console.error("Aviso: Não foi possível carregar usuários do Firebase. Usando apenas o usuário local.", error);
         }
+        
+        // 3. Popula o <select> com todos os usuários (estáticos + Firebase).
+        populateUserSelect();
     }
 
-    // Preenche o campo <select> com os usuários carregados do Firebase
+    // Preenche o campo <select> com os usuários
     function populateUserSelect() {
         if (!userSelect) return;
         userSelect.innerHTML = '<option value="">Selecione seu usuário...</option>';
-        USERS.forEach(user => {
+        ALL_USERS.forEach(user => {
             const option = document.createElement('option');
             option.value = user.name;
             option.textContent = user.name;
@@ -59,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const user = USERS.find(u => u.name === selectedUserName);
+        const user = ALL_USERS.find(u => u.name === selectedUserName);
 
         if (user && user.password === enteredPassword) {
             // Senha correta, cria a sessão no localStorage

@@ -4,7 +4,7 @@ const FIREBASE_CONFIG = {
     authDomain: "lerunners.firebaseapp.com",
     databaseURL: "https://lerunners-default-rtdb.firebaseio.com",
     projectId: "lerunners",
-    storageBucket: "lerunners.appspot.com", // Padrão correto para SDK v8
+    storageBucket: "lerunners.appspot.com",
     messagingSenderId: "786096020973",
     appId: "1:786096020973:web:334dc555218cedb0e1dbe4"
 };
@@ -21,8 +21,7 @@ if (!firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
 }
 
-// Referências globais corretas para a versão 8 do SDK
-const auth = firebase.auth();
+// Referência global apenas para o Realtime Database
 const database = firebase.database();
 
-console.log('Firebase v8 SDK e Cloudinary configurados corretamente para LeRunners.');
+console.log('Firebase v8 SDK (apenas Database) e Cloudinary configurados.');

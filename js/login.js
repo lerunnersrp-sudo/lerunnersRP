@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    let ALL_USERS = [];
+    // O professor está GARANTIDO aqui. Não precisa de o criar.
+    const STATIC_USERS = [
+        { name: 'Leandro Alves', role: 'professor', password: '194001' }
+    ];
+    let ALL_USERS = [...STATIC_USERS]; 
+
     const userSelect = document.getElementById('user-select');
     const passwordInput = document.getElementById('password-input');
     const loginForm = document.getElementById('login-form');
@@ -14,19 +19,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // Tenta carregar os alunos da base de dados
             const snapshot = await database.ref('logins').once('value');
             if (snapshot.exists()) {
-                ALL_USERS = Object.values(snapshot.val());
-                populateUserSelect();
-            } else {
-                loginError.textContent = 'Nenhum utilizador configurado. Crie o professor manualmente no Firebase.';
-                loginError.style.display = 'block';
+                const firebaseUsers = Object.values(snapshot.val());
+                firebaseUsers.forEach(fbUser => {
+                    // Adiciona apenas se não for o professor (evita duplicados)
+                    if (fbUser.role === 'atleta') {
+                        ALL_USERS.push(fbUser);
+                    }
+                });
             }
         } catch (error) {
-            console.error("Erro ao carregar lista de utilizadores:", error);
-            loginError.textContent = 'Falha ao conectar. Verifique as regras do Firebase.';
-            loginError.style.display = 'block';
+            console.error("Aviso: Não foi possível carregar alunos do Firebase.", error);
         }
+        
+        populateUserSelect();
     }
 
     function populateUserSelect() {

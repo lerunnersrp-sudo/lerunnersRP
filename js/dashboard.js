@@ -7,27 +7,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const addAthleteForm = document.getElementById('add-athlete-form');
     const athleteListContainer = document.getElementById('athlete-list-container');
     
-    async function checkSessionAndInitialize() {
+    function checkSessionAndInitialize() {
         const sessionDataString = localStorage.getItem('currentUserSession');
         if (!sessionDataString) {
             window.location.href = 'index.html';
             return;
         }
         
-        try {
-            // Para escrever, o professor precisa estar autenticado
-            await auth.signInAnonymously();
-            const sessionData = JSON.parse(sessionDataString);
-            initializeDashboard(sessionData);
-        } catch (error) {
-            console.error("Erro ao autenticar para operações do dashboard:", error);
-            alert("Erro de autenticação. Tente fazer login novamente.");
-            logoutUser();
-        }
+        const sessionData = JSON.parse(sessionDataString);
+        initializeDashboard(sessionData);
     }
 
     function initializeDashboard(userData) {
         userNameElement.textContent = `Olá, ${userData.name}`;
+        
         if (userData.role === 'professor') {
             professorView.style.display = 'block';
             loadAthletesList();
@@ -39,17 +32,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadAthletesList() {
         const loginsRef = database.ref('logins').orderByChild('role').equalTo('atleta');
         loginsRef.on('value', (snapshot) => {
-            athleteListContainer.innerHTML = '';
+            athleteListContainer.innerHTML = '<p>A carregar...</p>';
             if (snapshot.exists()) {
+                let html = '';
                 snapshot.forEach(childSnapshot => {
                     const athlete = childSnapshot.val();
-                    const div = document.createElement('div');
-                    div.className = "p-2 bg-gray-100 rounded";
-                    div.textContent = athlete.name;
-                    athleteListContainer.appendChild(div);
+                    html += `<div class="p-2 bg-gray-100 rounded">${athlete.name}</div>`;
                 });
+                athleteListContainer.innerHTML = html;
             } else {
-                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno cadastrado.</p>';
+                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno registado no Firebase.</p>';
             }
         });
     }
@@ -59,27 +51,36 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const nameInput = document.getElementById('athlete-name');
             const passwordInput = document.getElementById('athlete-password');
+            const errorElement = document.getElementById('add-athlete-error');
+            
             const newAthlete = {
                 name: nameInput.value.trim(),
                 password: passwordInput.value.trim(),
                 role: 'atleta'
             };
 
-            if (!newAthlete.name || !newAthlete.password) { return; }
+            if (!newAthlete.name || !newAthlete.password) {
+                errorElement.textContent = 'Preencha todos os campos.';
+                errorElement.style.display = 'block';
+                return;
+            }
 
             try {
-                await database.ref('logins').push().set(newAthlete);
-                alert(`Aluno '${newAthlete.name}' cadastrado com sucesso!`);
+                // Guarda o novo atleta na Base de Dados Firebase
+                const newLoginRef = database.ref('logins').push();
+                await newLoginRef.set(newAthlete);
+                
+                alert(`Aluno '${newAthlete.name}' registado com sucesso!`);
                 addAthleteForm.reset();
+
             } catch (error) {
-                console.error("Erro ao cadastrar aluno:", error);
-                alert("Falha ao cadastrar aluno. Verifique as regras de escrita do Firebase.");
+                console.error("Erro ao registar aluno:", error);
+                alert("Falha ao registar aluno. Tente novamente.");
             }
         });
     }
 
-    async function logoutUser() {
-        await auth.signOut();
+    function logoutUser() {
         localStorage.removeItem('currentUserSession');
         window.location.href = 'index.html';
     }

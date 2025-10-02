@@ -4,7 +4,7 @@ const FIREBASE_CONFIG = {
     authDomain: "lerunners.firebaseapp.com",
     databaseURL: "https://lerunners-default-rtdb.firebaseio.com",
     projectId: "lerunners",
-    storageBucket: "lerunners.appspot.com", // Corrigido de .firebasestorage.app para .appspot.com que é o padrão do v8
+    storageBucket: "lerunners.appspot.com", // Padrão correto para SDK v8
     messagingSenderId: "786096020973",
     appId: "1:786096020973:web:334dc555218cedb0e1dbe4"
 };
@@ -16,13 +16,14 @@ const CLOUDINARY_CONFIG = {
     API_SECRET: "S6YefZx7J5StgcTV-greU4wFhP4"
 };
 
-// Inicializar Firebase
+// Inicializar Firebase (versão 8)
 if (!firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
 }
 
-// Referências globais do Firebase
+// Referências globais corretas para a versão 8 do SDK
 const auth = firebase.auth();
 const database = firebase.database();
 
-console.log('Firebase v8 SDK configurado para LeRunners.');
+console.log('Firebase v8 SDK e Cloudinary configurados corretamente para LeRunners.');
+

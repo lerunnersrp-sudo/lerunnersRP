@@ -1,4 +1,4 @@
-// Script principal para o dashboard (versão corrigida e funcional)
+// Script principal para o dashboard (versão com correção de sintaxe)
 document.addEventListener('DOMContentLoaded', function() {
     
     const userNameElement = document.getElementById('user-name');
@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
     auth.onAuthStateChanged(user => {
         if (user) {
             // O usuário está logado. Vamos buscar seus dados no Realtime Database.
-            const userRef = database.ref('users/'' + user.uid);
+            // CORREÇÃO: Removida a aspa simples extra antes do sinal de mais.
+            const userRef = database.ref('users/' + user.uid);
             
             userRef.on('value', (snapshot) => {
                 if (snapshot.exists()) {

@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initializeDashboard(userData) {
         userNameElement.textContent = `Olá, ${userData.name}`;
-        
         if (userData.role === 'professor') {
             professorView.style.display = 'block';
             loadAthletesList();
@@ -32,16 +31,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadAthletesList() {
         const loginsRef = database.ref('logins').orderByChild('role').equalTo('atleta');
         loginsRef.on('value', (snapshot) => {
-            athleteListContainer.innerHTML = '<p>A carregar...</p>';
+            athleteListContainer.innerHTML = '';
             if (snapshot.exists()) {
-                let html = '';
                 snapshot.forEach(childSnapshot => {
                     const athlete = childSnapshot.val();
-                    html += `<div class="p-2 bg-gray-100 rounded">${athlete.name}</div>`;
+                    const div = document.createElement('div');
+                    div.className = "p-2 bg-gray-100 rounded";
+                    div.textContent = athlete.name;
+                    athleteListContainer.appendChild(div);
                 });
-                athleteListContainer.innerHTML = html;
             } else {
-                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno registado no Firebase.</p>';
+                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno registado.</p>';
             }
         });
     }
@@ -51,31 +51,22 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const nameInput = document.getElementById('athlete-name');
             const passwordInput = document.getElementById('athlete-password');
-            const errorElement = document.getElementById('add-athlete-error');
-            
             const newAthlete = {
                 name: nameInput.value.trim(),
                 password: passwordInput.value.trim(),
                 role: 'atleta'
             };
 
-            if (!newAthlete.name || !newAthlete.password) {
-                errorElement.textContent = 'Preencha todos os campos.';
-                errorElement.style.display = 'block';
-                return;
-            }
+            if (!newAthlete.name || !newAthlete.password) { return; }
 
             try {
-                // Guarda o novo atleta na Base de Dados Firebase
-                const newLoginRef = database.ref('logins').push();
-                await newLoginRef.set(newAthlete);
-                
+                // Com as novas regras, isto agora é permitido
+                await database.ref('logins').push().set(newAthlete);
                 alert(`Aluno '${newAthlete.name}' registado com sucesso!`);
                 addAthleteForm.reset();
-
             } catch (error) {
                 console.error("Erro ao registar aluno:", error);
-                alert("Falha ao registar aluno. Tente novamente.");
+                alert("Falha ao registar aluno. Verifique a sua ligação à internet.");
             }
         });
     }

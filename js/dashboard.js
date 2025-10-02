@@ -1,53 +1,93 @@
-// Script principal para o dashboard (versão com login local)
 document.addEventListener('DOMContentLoaded', function() {
     
     const userNameElement = document.getElementById('user-name');
     const logoutBtn = document.getElementById('logout-btn');
+    const professorView = document.getElementById('professor-view');
+    const atletaView = document.getElementById('atleta-view');
+    const addAthleteForm = document.getElementById('add-athlete-form');
+    const athleteListContainer = document.getElementById('athlete-list-container');
     
-    // Função para verificar a sessão local
     function checkSessionAndInitialize() {
         const sessionDataString = localStorage.getItem('currentUserSession');
-        
         if (!sessionDataString) {
-            // Se não há sessão, volta para a página de login
-            console.log('Nenhuma sessão encontrada. Redirecionando para o login.');
             window.location.href = 'index.html';
             return;
         }
         
-        // Se há sessão, inicializa o dashboard
         const sessionData = JSON.parse(sessionDataString);
         initializeDashboard(sessionData);
     }
 
-    // Função para inicializar o dashboard com os dados da sessão
     function initializeDashboard(userData) {
-        if (userNameElement) {
-            userNameElement.textContent = `Olá, ${userData.name}`;
-        }
-
-        // Aqui virá a lógica para mostrar a view de atleta ou professor
-        console.log(`Usuário '${userData.name}' logado como '${userData.role}'.`);
+        userNameElement.textContent = `Olá, ${userData.name}`;
         
-        // Exemplo:
-        // if (userData.role === 'professor') {
-        //     document.getElementById('professor-view').style.display = 'block';
-        // } else {
-        //     document.getElementById('atleta-view').style.display = 'block';
-        // }
+        if (userData.role === 'professor') {
+            professorView.style.display = 'block';
+            loadAthletesList();
+        } else {
+            atletaView.style.display = 'block';
+        }
     }
 
-    // Função de logout
+    function loadAthletesList() {
+        const loginsRef = database.ref('logins').orderByChild('role').equalTo('atleta');
+        loginsRef.on('value', (snapshot) => {
+            athleteListContainer.innerHTML = '<p>Carregando...</p>';
+            if (snapshot.exists()) {
+                let html = '';
+                snapshot.forEach(childSnapshot => {
+                    const athlete = childSnapshot.val();
+                    html += `<div class="p-2 bg-gray-100 rounded">${athlete.name}</div>`;
+                });
+                athleteListContainer.innerHTML = html;
+            } else {
+                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno cadastrado.</p>';
+            }
+        });
+    }
+
+    if (addAthleteForm) {
+        addAthleteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nameInput = document.getElementById('athlete-name');
+            const passwordInput = document.getElementById('athlete-password');
+            const errorElement = document.getElementById('add-athlete-error');
+            
+            const newAthlete = {
+                name: nameInput.value.trim(),
+                password: passwordInput.value.trim(),
+                role: 'atleta'
+            };
+
+            if (!newAthlete.name || !newAthlete.password) {
+                errorElement.textContent = 'Preencha todos os campos.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                // Salva o novo atleta no Firebase Database
+                const newLoginRef = database.ref('logins').push();
+                await newLoginRef.set(newAthlete);
+                
+                alert(`Aluno '${newAthlete.name}' cadastrado com sucesso!`);
+                addAthleteForm.reset();
+
+            } catch (error) {
+                console.error("Erro ao cadastrar aluno:", error);
+                alert("Falha ao cadastrar aluno. Tente novamente.");
+            }
+        });
+    }
+
     function logoutUser() {
         localStorage.removeItem('currentUserSession');
         window.location.href = 'index.html';
     }
 
-    // Adiciona o evento de clique no botão de logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logoutUser);
     }
     
-    // Inicia o processo de verificação
     checkSessionAndInitialize();
 });

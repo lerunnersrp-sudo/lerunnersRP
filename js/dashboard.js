@@ -3,23 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Seletores do DOM ---
     const userNameElement = document.getElementById('user-name');
     const logoutBtn = document.getElementById('logout-btn');
-    
-    // Vistas principais
     const professorView = document.getElementById('professor-view');
     const atletaView = document.getElementById('atleta-view');
-
-    // Sub-vistas do Professor
-    const hubView = document.getElementById('hub-view');
-    const managementView = document.getElementById('management-view');
-
-    // Elementos do Hub
+    const hubSubView = document.getElementById('hub-sub-view');
+    const managementSubView = document.getElementById('management-sub-view');
     const showAddAthleteBtn = document.getElementById('show-add-athlete-form-btn');
     const addAthleteContainer = document.getElementById('add-athlete-container');
     const cancelAddAthleteBtn = document.getElementById('cancel-add-athlete-btn');
     const addAthleteForm = document.getElementById('add-athlete-form');
     const athleteGridContainer = document.getElementById('athlete-grid-container');
-
-    // Elementos do Painel de Gestão Individual
     const backToHubBtn = document.getElementById('back-to-hub-btn');
     const managementAthleteName = document.getElementById('management-athlete-name');
     const prescribeTrainingForm = document.getElementById('prescribe-training-form');
@@ -28,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentManagingAthleteId = null; 
 
-    // --- Lógica Principal ---
+    // --- Lógica Principal de Inicialização ---
     function checkSessionAndInitialize() {
         const sessionDataString = localStorage.getItem('currentUserSession');
         if (!sessionDataString) {
@@ -42,22 +34,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeDashboard(userData) {
         userNameElement.textContent = `Olá, ${userData.name}`;
         if (userData.role === 'professor') {
-            professorView.style.display = 'block'; // Mostra o container geral do professor
-            showProfessorSubView('hub-view'); // Mostra o Hub por defeito
+            professorView.style.display = 'block';
+            showProfessorSubView('hub');
             setupProfessorEventListeners();
             loadAthletesGrid();
         } else {
-            atletaView.style.display = 'block'; // Mostra a vista do atleta
+            atletaView.style.display = 'block';
         }
     }
     
-    function showProfessorSubView(subViewId) {
-        if (subViewId === 'hub-view') {
-            hubView.style.display = 'block';
-            managementView.style.display = 'none';
-        } else if (subViewId === 'management-view') {
-            hubView.style.display = 'none';
-            managementView.style.display = 'block';
+    function showProfessorSubView(subViewName) {
+        if (subViewName === 'hub') {
+            hubSubView.style.display = 'block';
+            managementSubView.style.display = 'none';
+        } else if (subViewName === 'management') {
+            hubSubView.style.display = 'none';
+            managementSubView.style.display = 'block';
         }
     }
 
@@ -66,8 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showAddAthleteBtn.addEventListener('click', () => { addAthleteContainer.style.display = 'block'; showAddAthleteBtn.style.display = 'none'; });
         cancelAddAthleteBtn.addEventListener('click', () => { addAthleteContainer.style.display = 'none'; showAddAthleteBtn.style.display = 'block'; addAthleteForm.reset(); });
         addAthleteForm.addEventListener('submit', handleAddAthlete);
-        backToHubBtn.addEventListener('click', () => { showProfessorSubView('hub-view'); currentManagingAthleteId = null; });
-
+        backToHubBtn.addEventListener('click', () => { showProfessorSubView('hub'); currentManagingAthleteId = null; });
         athleteGridContainer.addEventListener('click', (e) => {
             const manageButton = e.target.closest('.manage-athlete-btn');
             if (manageButton) {
@@ -130,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Funções do Painel de Gestão Individual ---
     function openManagementPanel(athleteId) {
         currentManagingAthleteId = athleteId;
-        showProfessorSubView('management-view');
+        showProfessorSubView('management');
         
         const atletaRef = database.ref('atletas/' + athleteId);
         atletaRef.on('value', (snapshot) => {

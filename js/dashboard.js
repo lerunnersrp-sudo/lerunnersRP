@@ -3,20 +3,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Seletores do DOM ---
     const userNameElement = document.getElementById('user-name');
     const logoutBtn = document.getElementById('logout-btn');
-    
-    // Vistas principais
     const hubView = document.getElementById('hub-view');
     const managementView = document.getElementById('management-view');
     const atletaView = document.getElementById('atleta-view');
-
-    // Elementos do Hub
     const addAthleteContainer = document.getElementById('add-athlete-container');
     const showAddAthleteBtn = document.getElementById('show-add-athlete-form-btn');
     const cancelAddAthleteBtn = document.getElementById('cancel-add-athlete-btn');
     const addAthleteForm = document.getElementById('add-athlete-form');
     const athleteGridContainer = document.getElementById('athlete-grid-container');
-
-    // Elementos do Painel de Gestão Individual
     const backToHubBtn = document.getElementById('back-to-hub-btn');
     const managementAthleteName = document.getElementById('management-athlete-name');
     const prescribeTrainingForm = document.getElementById('prescribe-training-form');
@@ -24,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const athleteProfileForm = document.getElementById('athlete-profile-form');
     const keyMetricsContainer = document.getElementById('key-metrics-container');
 
-    let currentManagingAthleteId = null; // Guarda o ID do atleta que estamos a gerir
+    let currentManagingAthleteId = null; 
 
     // --- Lógica Principal ---
     function checkSessionAndInitialize() {
@@ -44,13 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
             setupProfessorHub();
         } else {
             showView('atleta-view');
-            // setupAthleteView(userData);
         }
     }
 
     function showView(viewId) {
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
+        const viewToShow = document.getElementById(viewId);
+        if(viewToShow) viewToShow.classList.add('active');
     }
 
     // --- Funções do Hub do Professor ---
@@ -61,9 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
         addAthleteForm.addEventListener('submit', handleAddAthlete);
         backToHubBtn.addEventListener('click', () => { showView('hub-view'); currentManagingAthleteId = null; });
 
-        // Event listener para os botões "Gerir Atleta"
         athleteGridContainer.addEventListener('click', (e) => {
-            if (e.target && e.target.matches('.manage-athlete-btn')) {
+            if (e.target && e.target.classList.contains('manage-athlete-btn')) {
                 const athleteId = e.target.dataset.atletaId;
                 openManagementPanel(athleteId);
             }
@@ -72,16 +65,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function handleAddAthlete(e) {
         e.preventDefault();
-        // Lógica de adicionar atleta permanece a mesma
         const name = document.getElementById('athlete-name').value.trim();
         const password = document.getElementById('athlete-password').value.trim();
         if (!name || !password) return;
 
         try {
             const newLoginRef = database.ref('logins').push();
-            const newLoginKey = newLoginRef.key;
             await newLoginRef.set({ name, password, role: 'atleta' });
-            await database.ref('atletas/' + newLoginKey).set({
+            
+            // Usamos a mesma chave para a nova "gaveta" de atletas
+            await database.ref('atletas/' + newLoginRef.key).set({
                 nome: name,
                 perfil: { objetivo: 'Não definido' }
             });
@@ -127,17 +120,15 @@ document.addEventListener('DOMContentLoaded', function() {
         showView('management-view');
         
         const atletaRef = database.ref('atletas/' + athleteId);
-        atletaRef.once('value', (snapshot) => {
+        atletaRef.on('value', (snapshot) => {
+            if(!snapshot.exists()) return;
             const atleta = snapshot.val();
             managementAthleteName.textContent = `Gerindo: ${atleta.nome}`;
-            
-            // Carregar dados nos formulários e listas
             loadProfileData(atleta.perfil);
             loadTrainingPlan(athleteId);
             loadKeyMetrics(atleta);
         });
 
-        // Configura os formulários para o atleta atual
         prescribeTrainingForm.onsubmit = (e) => handlePrescribeTraining(e);
         athleteProfileForm.onsubmit = (e) => handleUpdateProfile(e);
     }
@@ -157,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const treino = childSnapshot.val();
                     trainingPlanList.innerHTML += `
                         <div class="p-3 bg-gray-100 rounded">
-                            <p><strong>${new Date(treino.data + 'T00:00:00-03:00').toLocaleDateString('pt-BR', {weekday: 'long', day: '2-digit', month: '2-digit'})}:</strong> ${treino.tipo}</p>
+                            <p><strong>${new Date(treino.data + 'T03:00:00Z').toLocaleDateString('pt-BR', {weekday: 'long', day: '2-digit', month: '2-digit'})}:</strong> ${treino.tipo}</p>
                             <p class="text-sm text-gray-600">${treino.descricao}</p>
                         </div>
                     `;
@@ -169,24 +160,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadKeyMetrics(atleta) {
-        // Lógica a ser implementada: calcular volume, etc.
-        keyMetricsContainer.innerHTML = `
-            <p><strong>Volume Total:</strong> 0 km</p>
-            <p><strong>Treinos Realizados:</strong> 0</p>
-        `;
+        keyMetricsContainer.innerHTML = `<p><strong>Volume Total:</strong> 0 km</p>`;
     }
     
     async function handlePrescribeTraining(e) {
         e.preventDefault();
         if (!currentManagingAthleteId) return;
-
         const newTraining = {
             data: document.getElementById('training-date').value,
             tipo: document.getElementById('training-type').value,
             descricao: document.getElementById('training-description').value,
-            status: 'agendado' // status inicial
+            status: 'agendado'
         };
-
         try {
             await database.ref(`atletas/${currentManagingAthleteId}/plano_treino`).push().set(newTraining);
             alert('Treino agendado com sucesso!');
@@ -200,12 +185,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function handleUpdateProfile(e) {
         e.preventDefault();
         if (!currentManagingAthleteId) return;
-
         const updatedProfile = {
             objetivo: document.getElementById('athlete-goal').value,
             rp5k: document.getElementById('athlete-rp-5k').value
         };
-
         try {
             await database.ref(`atletas/${currentManagingAthleteId}/perfil`).update(updatedProfile);
             alert('Perfil do atleta atualizado com sucesso!');

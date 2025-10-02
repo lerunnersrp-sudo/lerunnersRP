@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 athleteListContainer.innerHTML = html;
             } else {
-                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno cadastrado.</p>';
+                athleteListContainer.innerHTML = '<p class="text-gray-500">Nenhum aluno cadastrado no Firebase.</p>';
             }
         });
     }
